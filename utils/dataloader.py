@@ -25,17 +25,6 @@ def data_reader(data_dir):
     output.append(new_seq)
     return output
 
-def data_process(data_dir):
-    #read data
-    output=data_reader(data_dir)
-    #build dictionary for store data
-    res_dict=defaultdict(list)
-    
-    for i in tqdm(range(len(output))):
-        res_dict['date'].append(output[i][0].split('|')[2])
-        res_dict['country'].append(output[i][0].split('|')[-1])
-        res_dict['sequence'].append(''.join(output[i][1:]))
-    seq_df=pd.DataFrame(res_dict)
-    return seq_df  
+
 
 
