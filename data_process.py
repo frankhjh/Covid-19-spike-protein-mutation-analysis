@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+import pandas as pd
+from tqdm import tqdm
+from collections import defaultdict
 from utils.dataloader import data_reader
 
 def data2df(data_dir):
-    #read data
+    # read data
     output=data_reader(data_dir)
-    #build dictionary for store data
+    # build dictionary for storing data
     res_dict=defaultdict(list)
     
     for i in tqdm(range(len(output))):
@@ -30,33 +33,42 @@ def data2df(data_dir):
             unnormal_idx.append(i)
     seq_df.drop(unnormal_idx,axis=0,inplace=True)
     seq_df.reset_index(drop=True,inplace=True)
-    
+    seq_df.date=pd.to_datetime(seq_df.date,format="%Y-%m-%d")
     return seq_df
 
-def sub_df(gidx,num_groups=20):
+def group_split(df,gidx,num_groups=20):
+    # gidx from 1 to num_groups
+    time_diff=df.date.max()-df.date.min()
+    span=time_diff.days//num_groups
 
+    start=df.date.min()+pd.Timedelta(f'{span * (gidx-1)} days')
+    if gidx!=num_groups:
+        end=df.date.min()+pd.Timedelta(f'{span * gidx} days')
+        return df[(df.date>=start) & (df.date<end)].reset_index(drop=True)
+    else:
+        end=df.date.max()
+        return df[(df.date>=start) & (df.date<=end)].reset_index(drop=True)
 
-
-
-
-# encoding the protein sequence of the specific group
+    
+# encoding the seq within speific group
 def letter2idx(df,gidx): 
     # gidx:group index
     letter_set=set()
     
-    unique_seqs=df.sequence.unique()
-    for i in range(len(unique_seqs)):
-        seq_li=[unique_seqs[i][j] for j in range(len(unique_seqs[i]))]
+    seqs=df.sequence.tolist() # if directly use df.sequence for iteration,very slow!
+    for i in tqdm(range(len(seqs))):
+        seq_li=[seqs[i][j] for j in range(len(seqs[i]))]
         letter_set.update(seq_li)
     
     mapping_dict={}
     for l in letter_set:
         mapping_dict[l]=len(mapping_dict)
-    
-    df['idx_sequence']=df.sequence.apply(lambda x:[x[i] for i in range(len(x))]).\
+
+    sub_df=group_split(df,gidx)
+    sub_df['idx_sequence']=sub_df.sequence.apply(lambda x:[x[i] for i in range(len(x))]).\
         apply(lambda x:[mapping_dict.get(i) for i in x])
     
-    return df
+    return sub_df
 
 
 
