@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def MLP_decoder(nn.Module):
+class MLP_decoder(nn.Module):
     def __init__(self,dim_z,num_aa_types,seq_len,hidden_units):
         super(MLP_decoder,self).__init__()
         self.dim_z=dim_z

@@ -22,10 +22,6 @@ class BN_Layer(nn.Module):
             x*=self.gamma2
         return x
 
-if __name__=='__main__':
-    x=torch.randn(10,10)
-    bn_layer=BN_Layer(10,0.5)
-    print(bn_layer(x,mu=False))
 
 
 
