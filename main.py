@@ -1,1 +1,1 @@
-from model.vae.encoder import lstm_encoder
+from model.vae import VAE
