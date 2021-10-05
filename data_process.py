@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 import pandas as pd
 from tqdm import tqdm
 from collections import defaultdict
-from utils.dataloader import data_reader
+from utils.datareader import data_reader
 
 def data2df(data_dir):
     # read data
@@ -49,10 +48,7 @@ def group_split(df,gidx,num_groups=20):
         end=df.date.max()
         return df[(df.date>=start) & (df.date<=end)].reset_index(drop=True)
 
-    
-# encoding the seq within speific group
-def letter2idx(df,gidx): 
-    # gidx:group index
+def create_mapping_dict(df):
     letter_set=set()
     
     seqs=df.sequence.tolist() # if directly use df.sequence for iteration,very slow!
@@ -63,7 +59,11 @@ def letter2idx(df,gidx):
     mapping_dict={}
     for l in letter_set:
         mapping_dict[l]=len(mapping_dict)
-
+    
+    return len(letter_set),mapping_dict
+    
+# encoding the seq within speific group
+def letter2idx(df,mapping_dict,gidx): # gidx:group index
     sub_df=group_split(df,gidx)
     sub_df['idx_sequence']=sub_df.sequence.apply(lambda x:[x[i] for i in range(len(x))]).\
         apply(lambda x:[mapping_dict.get(i) for i in x])

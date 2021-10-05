@@ -1,10 +1,5 @@
-#!/usr/bin/env python
 import torch
 import torch.nn as nn
-from .encoder.lstm_encoder import Gaussian_LSTM_encoder1,Gaussian_LSTM_encoder2
-from .encoder.mlp_encoder import MLP_encoder
-from .decoder.lstm_decoder import LSTM_decoder
-from .decoder.mlp_decoder import MLP_decoder
 
 class vae_gaussian_base(nn.Module):
     def __init__(self,encoder,decoder):

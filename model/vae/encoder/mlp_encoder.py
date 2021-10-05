@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import torch
 import torch.nn as nn
 from ..bn import BN_Layer
