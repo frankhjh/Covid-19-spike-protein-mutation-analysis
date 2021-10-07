@@ -12,11 +12,11 @@ model_parameters={
                 'dim_z':128,
                 'tau':0.5,
                 'num_aa_types':22,
-                'seq_len':1264,
-                'hidden_units':[512,1024]}
+                'seq_len':1274,
+                'hidden_units':[1024,512]},
     'MLP-MLP':{'dim_z':128,
                'num_aa_types':22,
-               'seq_len':1264,
-               'hidden_units':[512,1024],
+               'seq_len':1274,
+               'hidden_units':[1024,512],
                'tau':0.5}
 }

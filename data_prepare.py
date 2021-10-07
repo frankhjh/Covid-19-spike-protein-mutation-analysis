@@ -11,7 +11,7 @@ def idx2binary_rep(idx_seq): # idx_seq like [1,3,4,2,5,2,1,4,5]
 
 
 def prepare_data_loader(df,train=True,binary=True):
-   if train:
+    if train:
         df=df.sample(frac=1).reset_index(drop=True)
         size=df.shape[0]
         if binary:

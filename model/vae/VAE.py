@@ -23,7 +23,7 @@ class vae_gaussian_base(nn.Module):
         # compute the log p(x|z)
         raise NotImplementedError
 
-    def compute_elbo(self,x):
+    def compute_loss(self,x):
         # compute the total loss 
         raise NotImplementedError
 
@@ -33,43 +33,41 @@ class vae_gaussian_base(nn.Module):
 
 class vae_gaussian_mlp(vae_gaussian_base):
     def __init__(self,encoder,decoder):
-        super(vae_gaussian_mlp,self).__init__()
-        self.encoder=encoder
-        self.decoder=decoder
+        super(vae_gaussian_mlp,self).__init__(encoder,decoder)
     
     def compute_reconstruct_error(self,x): # x:(batch_size,seq_len*num_aa_types)
         mean,var=self.encode(x) # mean:(batch_size,dim_z) / var:(batch_size,dim_z)
-        z=self.reparameterize(mean,var) # z:(batch_size,dim_z)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std
         out=self.decode(z) # out:(batch_size,seq_len*num_aa_types) 
 
         # use cross entropy as loss function
-        loss=torch.sum(x*out,-1) # loss:(batch_size,)
-        return torch.mean(loss)
+        log_PxGz=torch.sum(x*out,-1) # loss:(batch_size,)
+        cross_entropy_loss=(-1)*log_PxGz
+        return torch.mean(cross_entropy_loss)
     
-    def compute_elbo(self,x): # x:(batch_size,seq_len*num_aa_types)
+    def compute_loss(self,x): # x:(batch_size,seq_len*num_aa_types)
         mean,var=self.encode(x) 
-        # KL divergence
-        kl_divergence=torch.sum(0.5*(-torch.log(var)+mean**2+var-1),-1) # (batch,)
-        
-        z=self.reparameterize(mean,var)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std
         out=self.decode(z)
-
+        
         # reconstruction error
-        loss=torch.sum(x*out,-1) # (batch,)
-        elbo=loss-kl_divergence # (batch,)
-        return torch.sum(elbo)
+        log_PxGz=torch.sum(x*out,-1) # (batch,)
+        total_loss=torch.sum((-1)*log_PxGz+torch.sum(0.5*(-torch.log(var)+mean**2+var-1),-1)) 
+        return total_loss
     
     def forward(self,x):
         mean,var=self.encode(x)
         z=self.reparameterize(mean,var)
         out=self.decode(z)
-        return mean,var,out
+        return out
 
 class vae_gaussian_lstm(vae_gaussian_base):
     def __init__(self,encoder,decoder):
-        super(vae_gaussian_lstm,self).__init__()
-        self.encoder=encoder
-        self.decoder=decoder
+        super(vae_gaussian_lstm,self).__init__(encoder,decoder)
     
     def compute_reconstruct_error(self,x): # x:(batch_size,seq_len)
         means,var_s=self.encode(x) 
@@ -83,7 +81,7 @@ class vae_gaussian_lstm(vae_gaussian_base):
         loss=cross_entropy_loss(out,target)
         return loss
     
-    def compute_elbo(self,x):
+    def compute_loss(self,x):
         means,var_s=self.encode(x)
         # KL divergence
         kl_divergence=torch.mean(torch.sum(0.5*(-torch.log(var_s)+means**2+var_s-1),-1),-1) # (batch,)
@@ -95,16 +93,16 @@ class vae_gaussian_lstm(vae_gaussian_base):
         target=x.view(-1) # target:(batch_size*seq_len,)
         
         cross_entropy_loss=nn.CrossEntropyLoss(reduction='sum')
-        loss=cross_entropy_loss(out,target)
-        elbo=loss-kl_divergence
-        return elbo
+        reconstruction_error=cross_entropy_loss(out,target)
+        loss=reconstruction_error+kl_divergence
+        return loss
     
     def forward(self,x):
         means,var_s=self.encode(x)
         z=self.reparameterize(means,var_s)
         out=self.decode(z.permute(0,2,1))
 
-        return out,means,var_s
+        return out
 
 
 

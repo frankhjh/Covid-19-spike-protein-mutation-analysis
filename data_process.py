@@ -35,7 +35,7 @@ def data2df(data_dir):
     seq_df.date=pd.to_datetime(seq_df.date,format="%Y-%m-%d")
     return seq_df
 
-def group_split(df,gidx,num_groups=20):
+def group_split(df,gidx,num_groups=10):
     # gidx from 1 to num_groups
     time_diff=df.date.max()-df.date.min()
     span=time_diff.days//num_groups

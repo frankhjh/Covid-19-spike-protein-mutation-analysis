@@ -55,7 +55,7 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
         for step,x in enumerate(val_dataloader):
             x=x.to(device)
             with torch.no_grad():
-                loss=model.compute_elbo()
+                loss=model.compute_loss(x)
                 val_loss+=loss.item()
         return val_loss/(step+1)
     
@@ -65,7 +65,7 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
         total_loss=0.0
         for step,x in tqdm(enumerate(train_dataloader)):
             x=x.to(device)
-            loss=model.compute_elbo(x)
+            loss=model.compute_loss(x)
 
             optimizer.zero_grad()
             loss.backward() 

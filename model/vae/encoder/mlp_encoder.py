@@ -20,14 +20,14 @@ class MLP_encoder(nn.Module):
         self.encoder_mean=nn.Linear(self.hidden_units[-1],self.dim_z,bias=True)
         self.encoder_logvar=nn.Linear(self.hidden_units[-1],self.dim_z,bias=True)
 
-        self.bn_layer=BN_Layer(dim_z,tau)
+        self.bn_layer1=BN_Layer(dim_z,tau,mu=True)
+        self.bn_layer2=BN_Layer(dim_z,tau,mu=False)
     
     def forward(self,x): # x: (batch_size , seq_len*num_aa_types)
         for hidden_layer in self.encoder_linears:
             x=hidden_layer(x)
             x=torch.tanh(x)
-        mean=self.bn_layer(self.encoder_mean(x)) # mean: (batch_size,dim_z )
-        var=self.bn_layer(torch.exp(self.encoder_logvar(x)),mu=False) # var: (batch_size,dim_z )
-
-
+        mean=self.bn_layer1(self.encoder_mean(x)) # mean: (batch_size,dim_z )
+        var=torch.exp(self.bn_layer2(self.encoder_logvar(x))) # var: (batch_size,dim_z )
+        
         return mean,var
