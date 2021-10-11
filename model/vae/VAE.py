@@ -45,7 +45,7 @@ class vae_gaussian_mlp(vae_gaussian_base):
         # use cross entropy as loss function
         log_PxGz=torch.sum(x*out,-1) # loss:(batch_size,)
         cross_entropy_loss=(-1)*log_PxGz
-        return torch.mean(cross_entropy_loss)
+        return torch.sum(cross_entropy_loss)
     
     def compute_loss(self,x): # x:(batch_size,seq_len*num_aa_types)
         mean,var=self.encode(x) 

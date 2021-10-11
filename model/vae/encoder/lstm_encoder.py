@@ -11,7 +11,7 @@ class Gaussian_LSTM_encoder1(nn.Module):
         self.hid_size=hid_size
         self.dim_z=dim_z
         
-        self.embed_layer=nn.Embedding(num_embddings=vocab_size,
+        self.embed_layer=nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=embed_dim)
         
         self.lstm=nn.LSTM(input_size=embed_dim,
@@ -20,7 +20,8 @@ class Gaussian_LSTM_encoder1(nn.Module):
                           batch_first=True)
         
         self.linear=nn.Linear(hid_size,2*dim_z,bias=False)
-        self.bn_layer=BN_Layer(dim_z,tau)
+        self.bn_layer1=BN_Layer(dim_z,tau,mu=True)
+        self.bn_layer2=BN_Layer(dim_z,tau,mu=False)
     
     def forward(self,x):
         embeddings=self.embed_layer(x) # (batch_size,seq_len,embed_dim)
@@ -28,8 +29,8 @@ class Gaussian_LSTM_encoder1(nn.Module):
 
         mean,logvar=self.linear(last_hid).chunk(2,-1) # mean/logvar:(1,batch_size,dim_z)
 
-        mean=self.bn_layer(mean.squeeze(0)) # (batch_size,dim_z)
-        var=self.bn_layer(torch.exp(logvar.squeeze(0)),mu=False) # (batch_size,dim_z)
+        mean=self.bn_layer1(mean.squeeze(0)) # (batch_size,dim_z)
+        var=torch.exp(self.bn_layer2(logvar.squeeze(0))) # (batch_size,dim_z)
         return mean,var
 
 # multi z
@@ -40,7 +41,7 @@ class Gaussian_LSTM_encoder2(nn.Module):
         self.vocab_size=vocab_size
         self.hid_size=hid_size
         self.dim_z=dim_z
-        self.embed_layer=nn.Embedding(num_embddings=vocab_size,
+        self.embed_layer=nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=embed_dim)
         
         self.lstm=nn.LSTM(input_size=embed_dim,
@@ -49,7 +50,8 @@ class Gaussian_LSTM_encoder2(nn.Module):
                           batch_first=True)
         self.linear2mean=nn.Linear(hid_size,dim_z,bias=False)
         self.linear2logvar=nn.Linear(hid_size,dim_z,bias=False)
-        self.bn_layer=BN_Layer(dim_z,tau)
+        self.bn_layer1=BN_Layer(dim_z,tau,mu=True)
+        self.bn_layer2=BN_Layer(dim_z,tau,mu=False)
     
     def forward(self,x):
         embeddings=self.embed_layer(x) # (batch_size,seq_len,embed_dim)
@@ -58,8 +60,8 @@ class Gaussian_LSTM_encoder2(nn.Module):
         means=self.linear2mean(lstm_out) # means :(batch_size,seq_len,dim_z)
         logvars=self.linear2logvar(lstm_out) # logvars :(batch_size,seq_len,dim_z)
 
-        means=self.bn_layer(means.permute(0,2,1)) # means :(batch_size,dim_z,seq_len)
-        var_s=self.bn_layer(torch.exp(logvars.permute(0,2,1)),mu=False) # vars :(batch_size,dim_z,seq_len)
+        means=self.bn_layer1(means.permute(0,2,1)) # means :(batch_size,dim_z,seq_len)
+        var_s=torch.exp(self.bn_layer2(logvars.permute(0,2,1))) # vars :(batch_size,dim_z,seq_len)
 
         return means,var_s
         

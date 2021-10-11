@@ -18,12 +18,15 @@ def prepare_data_loader(df,train=True,binary=True):
             df['binary_rep_sequence']=df.idx_sequence.apply(idx2binary_rep)
             train_seq_li=df.binary_rep_sequence.tolist()[:int(0.9*size)]
             val_seq_li=df.binary_rep_sequence.tolist()[int(0.9*size):]
+
+            train_tensor=torch.Tensor(train_seq_li)
+            val_tensor=torch.Tensor(val_seq_li)
         else:
             train_seq_li=df.idx_sequence.tolist()[:int(0.9*size)]
             val_seq_li=df.idx_sequence.tolist()[int(0.9*size):]
 
-        train_tensor=torch.Tensor(train_seq_li)
-        val_tensor=torch.Tensor(val_seq_li)
+            train_tensor=torch.tensor(train_seq_li)
+            val_tensor=torch.tensor(val_seq_li)
 
         train_set=protein_seq_dataset(train_tensor)
         val_set=protein_seq_dataset(val_tensor)
@@ -36,11 +39,13 @@ def prepare_data_loader(df,train=True,binary=True):
         if binary:
             df['binary_rep_sequence']=df.idx_sequence.apply(idx2binary_rep)
             test_seq_li=df.binary_rep_sequence.tolist()
+            test_tensor=torch.Tensor(test_seq_li)
         else:
             test_seq_li=df.idx_sequence.tolist()
-        test_tensor=torch.Tensor(test_seq_li)
+            test_tensor=torch.tensor(test_seq_li)
+        
         test_set=protein_seq_dataset(test_tensor)
-        test_dataloader=DataLoader(test_set)
+        test_dataloader=DataLoader(test_set,batch_size=32,shuffle=False)
         return test_dataloader
  
 
