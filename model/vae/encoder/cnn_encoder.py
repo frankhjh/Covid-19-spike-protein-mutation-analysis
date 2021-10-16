@@ -42,3 +42,4 @@ class multi_kernel_cnn(nn.Module):
         return mean,var
 
 
+

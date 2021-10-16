@@ -48,6 +48,11 @@ def group_split(df,gidx,num_groups=10):
         end=df.date.max()
         return df[(df.date>=start) & (df.date<=end)].reset_index(drop=True)
 
+def group_split_month(df,year,month):
+    sub_df=df[df.date.apply(lambda x:(x.year,x.month))==(year,month)]
+    return sub_df.reset_index(drop=True)
+
+
 def create_mapping_dict(df):
     letter_set=set()
     
@@ -63,8 +68,8 @@ def create_mapping_dict(df):
     return len(letter_set),mapping_dict
     
 # encoding the seq within speific group
-def letter2idx(df,mapping_dict,gidx): # gidx:group index
-    sub_df=group_split(df,gidx)
+def letter2idx(df,mapping_dict,year,month): # gidx:group index
+    sub_df=group_split_month(df,year,month)
     sub_df['idx_sequence']=sub_df.sequence.apply(lambda x:[x[i] for i in range(len(x))]).\
         apply(lambda x:[mapping_dict.get(i) for i in x])
     
