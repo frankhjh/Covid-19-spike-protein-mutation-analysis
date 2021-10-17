@@ -10,20 +10,21 @@ def idx2binary_rep(idx_seq): # idx_seq like [1,3,4,2,5,2,1,4,5]
     return out
 
 
-def prepare_data_loader(df,train=True,binary=True):
+def prepare_data_loader(df,fix_size=5500,train=True,binary=True):
     if train:
-        df=df.sample(frac=1).reset_index(drop=True)
-        size=df.shape[0]
+        df=df.sample(fix_size,replace=True).reset_index(drop=True) if df.shape[0]<fix_size \
+            else df.sample(fix_size).reset_index(drop=True)
+
         if binary:
             df['binary_rep_sequence']=df.idx_sequence.apply(idx2binary_rep)
-            train_seq_li=df.binary_rep_sequence.tolist()[:int(0.9*size)]
-            val_seq_li=df.binary_rep_sequence.tolist()[int(0.9*size):]
+            train_seq_li=df.binary_rep_sequence.tolist()[:5000]
+            val_seq_li=df.binary_rep_sequence.tolist()[5000:]
 
             train_tensor=torch.Tensor(train_seq_li)
             val_tensor=torch.Tensor(val_seq_li)
         else:
-            train_seq_li=df.idx_sequence.tolist()[:int(0.9*size)]
-            val_seq_li=df.idx_sequence.tolist()[int(0.9*size):]
+            train_seq_li=df.idx_sequence.tolist()[:5000]
+            val_seq_li=df.idx_sequence.tolist()[5000:]
 
             train_tensor=torch.tensor(train_seq_li)
             val_tensor=torch.tensor(val_seq_li)

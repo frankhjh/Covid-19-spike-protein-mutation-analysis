@@ -45,11 +45,11 @@ print('>>sub DataFrames created.')
 
 # create data loaders
 if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP']:
-    train_dataloader,val_dataloader=prepare_data_loader(curr_df,train=True,binary=False)
-    test_dataloader=prepare_data_loader(next_df,train=False,binary=False)
+    train_dataloader,val_dataloader=prepare_data_loader(curr_df,fix_size=5500,train=True,binary=False)
+    test_dataloader=prepare_data_loader(next_df,fix_size=5500,train=False,binary=False)
 elif model_type in ['MLP-MLP']:
-    train_dataloader,val_dataloader=prepare_data_loader(curr_df,train=True,binary=True)
-    test_dataloader=prepare_data_loader(next_df,train=False, binary=True)
+    train_dataloader,val_dataloader=prepare_data_loader(curr_df,fix_size=5500,train=True,binary=True)
+    test_dataloader=prepare_data_loader(next_df,fix_size=5500,train=False, binary=True)
 print('>>dataloader prepared.')
 
 # train
