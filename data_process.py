@@ -33,6 +33,7 @@ def data2df(data_dir):
     seq_df.drop(unnormal_idx,axis=0,inplace=True)
     seq_df.reset_index(drop=True,inplace=True)
     seq_df.date=pd.to_datetime(seq_df.date,format="%Y-%m-%d")
+    
     return seq_df
 
 def group_split(df,gidx,num_groups=10):

@@ -14,6 +14,12 @@ model_parameters={
                 'num_aa_types':22,
                 'seq_len':1274,
                 'hidden_units':[1024,512]},
+    'CNN-MLP':{'embed_dim':128,
+               'vocab_size':22,
+               'feat_size':4,
+               'kernel_sizes':[2,3,5,10,30]
+               'dim_z':128,
+               'tau':0.5},
     'MLP-MLP':{'dim_z':128,
                'num_aa_types':22,
                'seq_len':1274,

@@ -19,14 +19,16 @@ parser.add_argument('--model_type',type=str)
 parser.add_argument('--epochs',type=int,default=20)
 parser.add_argument('--lr',type=float,default=1e-3)
 parser.add_argument('--device',type=str,default='cpu')
-parser.add_argument('--period',type=int)
+parser.add_argument('--year',type=int)
+parser.add_argument('--month',type=int)
 args=parser.parse_args()
 
 model_type=args.model_type
 epochs=args.epochs
 lr=args.lr
 device=args.device
-period=args.period
+year=args.year
+month=args.month
 
 # data prepare
 data_dir='./data/output.fasta'
@@ -37,12 +39,12 @@ num_aa_types,mapping_dict=create_mapping_dict(df)
 print('>>mapping_dict created.')
 
 # create sub-df within given period
-curr_df=letter2idx(df,mapping_dict,period)
-next_df=letter2idx(df,mapping_dict,period+1)
+curr_df=letter2idx(df,mapping_dict,year,month)
+next_df=letter2idx(df,mapping_dict,year,month+1) if month!=12 else letter2idx(df,mapping_dict,year+1,1)
 print('>>sub DataFrames created.')
 
 # create data loaders
-if model_type in ['LSTM-LSTM','LSTM-MLP']:
+if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP']:
     train_dataloader,val_dataloader=prepare_data_loader(curr_df,train=True,binary=False)
     test_dataloader=prepare_data_loader(next_df,train=False,binary=False)
 elif model_type in ['MLP-MLP']:
@@ -58,10 +60,11 @@ model=train_vae(model_type=model_type,
           epochs=epochs,
           lr=lr,
           device=device,
-          period=period)
+          year=year,
+          month=month)
 
 # compute reconstruction error
-model.load_state_dict(torch.load(f'./tmp/{model_type}/bm{period}.ckpt'))
+model.load_state_dict(torch.load(f'./tmp/{model_type}/bm{year}_{month}.ckpt'))
 print('>>model loaded.')
 
 reconstruction_error=0.0
@@ -72,7 +75,7 @@ reconstruction_error/=(step+1)
 print('>>reconstruction error computed.')
 
 with open(f'./tmp/reconstruction_error/{model_type}.txt','w+') as f:
-    f.write('{} {}\n'.format(period,reconstruction_error))
+    f.write('{}_{} {}\n'.format(year,month,reconstruction_error))
 f.close()
 print('>>Done.')
 
