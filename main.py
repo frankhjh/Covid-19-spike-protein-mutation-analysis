@@ -1,5 +1,6 @@
 import pandas as pd
-from data_process import data2df,create_mapping_dict,letter2idx
+import json
+from data_process import letter2idx
 from data_prepare import prepare_data_loader
 from train import train_vae
 from tqdm import tqdm
@@ -30,27 +31,33 @@ device=args.device
 year=args.year
 month=args.month
 
-# data prepare
-data_dir='./data/output.fasta'
-df=data2df(data_dir)
-print('>>DataFrame loaded.')
+month_name={1:'jan',2:'feb',3:'mar',4:'apr',5:'may',6:'jun',7:'jul',8:'aug',
+    9:'sep',10:'oct',11:'nov',12:'dec'}
 
-num_aa_types,mapping_dict=create_mapping_dict(df)
-print('>>mapping_dict created.')
+# load data from hdf
+data_store=pd.HDFStore('./data/month_split_data.h5')
+key1=month_name[month]+str(year)
+key2=month_name[month+1]+str(year) if month!=12 else month_name[1]+str(year+1)
 
-# create sub-df within given period
-curr_df=letter2idx(df,mapping_dict,year,month)
-next_df=letter2idx(df,mapping_dict,year,month+1) if month!=12 else letter2idx(df,mapping_dict,year+1,1)
-print('>>sub DataFrames created.')
+df1=data_store[key1].reset_index(drop=True)
+df2=data_store[key2].reset_index(drop=True)
+print('>>DataFrames Loaded.')
+
+with open('./utils/mapping.json','r') as f:
+    mapping_dict=json.load(f)
+
+current_month=letter2idx(df1,mapping_dict)
+next_month=letter2idx(df2,mapping_dict)
+print('>>Sequence Encoding Done.')
 
 # create data loaders
 if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP']:
-    train_dataloader,val_dataloader=prepare_data_loader(curr_df,fix_size=5500,train=True,binary=False)
-    test_dataloader=prepare_data_loader(next_df,fix_size=5500,train=False,binary=False)
+    train_dataloader,val_dataloader=prepare_data_loader(current_month,fix_sizes=[9000,1000],train=True,binary=False)
+    test_dataloader=prepare_data_loader(next_month,fix_sizes=[9000,1000],train=False,binary=False)
 elif model_type in ['MLP-MLP']:
-    train_dataloader,val_dataloader=prepare_data_loader(curr_df,fix_size=5500,train=True,binary=True)
-    test_dataloader=prepare_data_loader(next_df,fix_size=5500,train=False, binary=True)
-print('>>dataloader prepared.')
+    train_dataloader,val_dataloader=prepare_data_loader(current_month,fix_size=[9000,1000],train=True,binary=True)
+    test_dataloader=prepare_data_loader(next_month,fix_size=[9000,1000],train=False, binary=True)
+print('>>Dataloader Prepared.')
 
 # train
 model=train_vae(model_type=model_type,
@@ -65,14 +72,14 @@ model=train_vae(model_type=model_type,
 
 # compute reconstruction error
 model.load_state_dict(torch.load(f'./tmp/{model_type}/bm{year}_{month}.ckpt'))
-print('>>model loaded.')
+print('>>Model Loaded.')
 
 reconstruction_error=0.0
 for step,x in tqdm(enumerate(test_dataloader)):
     error=model.compute_reconstruct_error(x)
     reconstruction_error+=error.item()
 reconstruction_error/=(step+1)
-print('>>reconstruction error computed.')
+print('>>Reconstruction Error Computed.')
 
 with open(f'./tmp/reconstruction_error/{model_type}.txt','w+') as f:
     f.write('{}_{} {}\n'.format(year,month,reconstruction_error))

@@ -1,3 +1,4 @@
 #fasta data
 *.fasta
+*.h5
 __pycache__
