@@ -14,6 +14,8 @@ from model.vae.decoder.mlp_decoder import MLP_decoder
 from model.vae.VAE import *
 from model.vae.model_config import model_parameters
 import argparse
+import os
+os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
 parser=argparse.ArgumentParser(description='Parameters for training')
 parser.add_argument('--model_type',type=str)
@@ -41,6 +43,7 @@ key2=month_name[month+1]+str(year) if month!=12 else month_name[1]+str(year+1)
 
 df1=data_store[key1].reset_index(drop=True)
 df2=data_store[key2].reset_index(drop=True)
+data_store.close()
 print('>>DataFrames Loaded.')
 
 with open('./utils/mapping.json','r') as f:
@@ -55,8 +58,8 @@ if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP']:
     train_dataloader,val_dataloader=prepare_data_loader(current_month,fix_sizes=[9000,1000],train=True,binary=False)
     test_dataloader=prepare_data_loader(next_month,fix_sizes=[9000,1000],train=False,binary=False)
 elif model_type in ['MLP-MLP']:
-    train_dataloader,val_dataloader=prepare_data_loader(current_month,fix_size=[9000,1000],train=True,binary=True)
-    test_dataloader=prepare_data_loader(next_month,fix_size=[9000,1000],train=False, binary=True)
+    train_dataloader,val_dataloader=prepare_data_loader(current_month,fix_sizes=[9000,1000],train=True,binary=True)
+    test_dataloader=prepare_data_loader(next_month,fix_sizes=[9000,1000],train=False, binary=True)
 print('>>Dataloader Prepared.')
 
 # train

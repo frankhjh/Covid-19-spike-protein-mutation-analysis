@@ -6,7 +6,7 @@ from model.vae.encoder.lstm_encoder import Gaussian_LSTM_encoder1,Gaussian_LSTM_
 from model.vae.encoder.cnn_encoder import multi_kernel_cnn
 from model.vae.encoder.mlp_encoder import MLP_encoder
 from model.vae.decoder.lstm_decoder import LSTM_decoder
-from model.vae.decoder.mlp_decoder import MLP_decoder
+from model.vae.decoder.mlp_decoder import MLP_decoder1,MLP_decoder2
 from model.vae.VAE import *
 from model.vae.model_config import model_parameters
 
@@ -30,11 +30,11 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
                                        hid_size=paras.get('hid_size'),
                                        dim_z=paras.get('dim_z'),
                                        tau=paras.get('tau'))
-        decoder=MLP_decoder(dim_z=paras.get('dim_z'),
+        decoder=MLP_decoder2(dim_z=paras.get('dim_z'),
                             num_aa_types=paras.get('num_aa_types'),
                             seq_len=paras.get('seq_len'),
                             hidden_units=paras.get('hidden_units'))
-        model=vae_gaussian_mlp(encoder=encoder,decoder=decoder)
+        model=vae_gaussian_mix(encoder=encoder,decoder=decoder)
     
     if model_type=='CNN-MLP':
         encoder=multi_kernel_cnn(embed_dim=paras.get('embed_dim'),
@@ -43,11 +43,11 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
                                  kernel_sizes=paras.get('kernel_sizes'),
                                  dim_z=paras.get('dim_z'),
                                  tau=paras.get('tau'))
-        decoder=MLP_decoder(dim_z=paras.get('dim_z'),
+        decoder=MLP_decoder2(dim_z=paras.get('dim_z'),
                             num_aa_types=paras.get('num_aa_types'),
                             seq_len=paras.get('seq_len'),
                             hidden_units=paras.get('hidden_units'))
-        model=vae_gaussian_mlp(encoder=encoder,decoder=decoder)
+        model=vae_gaussian_mix(encoder=encoder,decoder=decoder)
         
     
     if model_type=='MLP-MLP':

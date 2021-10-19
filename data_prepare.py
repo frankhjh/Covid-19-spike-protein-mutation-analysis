@@ -63,7 +63,7 @@ def prepare_data_loader(df,fix_sizes=[9000,1000],train=True,binary=True):
         return test_dataloader
  
 # continent specified
-def prepare_data_loader2(df,continent_name,train=True,binary=True):
-    fix_sizes={'Asia':2200,'Europe':}
+# def prepare_data_loader2(df,continent_name,train=True,binary=True):
+#     fix_sizes={'Asia':2200,'Europe':}
         
         

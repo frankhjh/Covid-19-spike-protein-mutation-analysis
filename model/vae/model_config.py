@@ -17,7 +17,7 @@ model_parameters={
     'CNN-MLP':{'embed_dim':128,
                'vocab_size':22,
                'feat_size':4,
-               'kernel_sizes':[2,3,5,10,30]
+               'kernel_sizes':[2,3,5,10,30],
                'dim_z':128,
                'tau':0.5},
     'MLP-MLP':{'dim_z':128,

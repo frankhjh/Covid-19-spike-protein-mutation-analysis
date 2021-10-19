@@ -56,7 +56,7 @@ class vae_gaussian_mlp(vae_gaussian_base):
         
         # reconstruction error
         log_PxGz=torch.sum(x*out,-1) # (batch,)
-        total_loss=torch.sum((-1)*log_PxGz+torch.sum(0.5*(-torch.log(var)+mean**2+var-1),-1)) 
+        total_loss=torch.sum((-1)*log_PxGz+torch.mean(0.5*(-torch.log(var)+mean**2+var-1),-1)) # mean or sum???
         return total_loss
     
     def forward(self,x):
@@ -64,6 +64,43 @@ class vae_gaussian_mlp(vae_gaussian_base):
         z=self.reparameterize(mean,var)
         out=self.decode(z)
         return out
+
+class vae_gaussian_mix(vae_gaussian_base):
+    def __init__(self,encoder,decoder):
+        super(vae_gaussian_mix,self).__init__(encoder,decoder)
+    
+    def compute_reconstruct_error(self,x): # x:(batch_size,seq_len)
+        mean,var=self.encode(x)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std # (batch_size,dim_z)
+        out=self.decode(z)
+
+        target=x.view(-1)
+        cross_entropy_loss=nn.CrossEntropyLoss(reduction='sum')
+        loss=cross_entropy_loss(out,target)
+        return loss
+    
+    def compute_loss(self,x):
+        mean,var=self.encode(x)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std # (batch_size,dim_z)
+        out=self.decode(z)
+
+        target=x.view(-1)
+        cross_entropy_loss=nn.CrossEntropyLoss(reduction='sum')
+        reconstruction_error=cross_entropy_loss(out,target)
+
+        total_loss=reconstruction_error+torch.sum(torch.mean(0.5*(-torch.log(var)+mean**2+var-1),-1))
+        return total_loss
+    
+    def forward(self,x):
+        mean,var=self.encode(x)
+        z=self.reparameterize(mean,var)
+        out=self.decode(z)
+        return out
+
 
 class vae_gaussian_lstm(vae_gaussian_base):
     def __init__(self,encoder,decoder):

@@ -37,7 +37,7 @@ class multi_kernel_cnn(nn.Module):
         mean,logvar=out.chunk(2,-1)
 
         mean=self.bn_layer1(mean) # (batch_size,dim_z)
-        var=torch.exp(self.bn_layer2(logvar) # (batch_size,dim_z)
+        var=torch.exp(self.bn_layer2(logvar)) # (batch_size,dim_z)
 
         return mean,var
 
