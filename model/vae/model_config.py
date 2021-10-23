@@ -13,7 +13,7 @@ model_parameters={
                 'tau':0.5,
                 'num_aa_types':22,
                 'seq_len':1274,
-                'hidden_units':[1024,512]},
+                'hidden_units':[512,1024]},
     'CNN-MLP':{'embed_dim':128,
                'vocab_size':22,
                'feat_size':4,
@@ -23,6 +23,7 @@ model_parameters={
     'MLP-MLP':{'dim_z':128,
                'num_aa_types':22,
                'seq_len':1274,
-               'hidden_units':[1024,512],
+               'hidden_units_enc':[1024,512],
+               'hidden_units_dec':[512,1024],
                'tau':0.5}
 }

@@ -56,8 +56,15 @@ class vae_gaussian_mlp(vae_gaussian_base):
         
         # reconstruction error
         log_PxGz=torch.sum(x*out,-1) # (batch,)
-        total_loss=torch.sum((-1)*log_PxGz+torch.mean(0.5*(-torch.log(var)+mean**2+var-1),-1)) # mean or sum???
+        total_loss=torch.sum((-1)*log_PxGz+torch.sum(0.5*(-torch.log(var)+mean**2+var-1),-1)) # mean or sum???
         return total_loss
+    
+    def get_latent(self,x):
+        mean,var=self.encode(x)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std
+        return z
     
     def forward(self,x):
         mean,var=self.encode(x)
@@ -92,8 +99,15 @@ class vae_gaussian_mix(vae_gaussian_base):
         cross_entropy_loss=nn.CrossEntropyLoss(reduction='sum')
         reconstruction_error=cross_entropy_loss(out,target)
 
-        total_loss=reconstruction_error+torch.sum(torch.mean(0.5*(-torch.log(var)+mean**2+var-1),-1))
+        total_loss=reconstruction_error+torch.sum(torch.sum(0.5*(-torch.log(var)+mean**2+var-1),-1))
         return total_loss
+    
+    def get_latent(self,x):
+        mean,var=self.encode(x)
+        std=torch.sqrt(var)
+        eps=torch.randn_like(mean)
+        z=mean+eps*std
+        return z
     
     def forward(self,x):
         mean,var=self.encode(x)

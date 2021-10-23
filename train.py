@@ -6,7 +6,7 @@ from model.vae.encoder.lstm_encoder import Gaussian_LSTM_encoder1,Gaussian_LSTM_
 from model.vae.encoder.cnn_encoder import multi_kernel_cnn
 from model.vae.encoder.mlp_encoder import MLP_encoder
 from model.vae.decoder.lstm_decoder import LSTM_decoder
-from model.vae.decoder.mlp_decoder import MLP_decoder1,MLP_decoder2
+from model.vae.decoder.mlp_decoder import MLP_decoder,MLP_decoder2
 from model.vae.VAE import *
 from model.vae.model_config import model_parameters
 
@@ -54,12 +54,12 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
         encoder=MLP_encoder(dim_z=paras.get('dim_z'),
                             num_aa_types=paras.get('num_aa_types'),
                             seq_len=paras.get('seq_len'),
-                            hidden_units=paras.get('hidden_units'),
+                            hidden_units=paras.get('hidden_units_enc'),
                             tau=paras.get('tau'))
         decoder=MLP_decoder(dim_z=paras.get('dim_z'),
                             num_aa_types=paras.get('num_aa_types'),
                             seq_len=paras.get('seq_len'),
-                            hidden_units=paras.get('hidden_units'))
+                            hidden_units=paras.get('hidden_units_dec'))
         model=vae_gaussian_mlp(encoder=encoder,decoder=decoder)
     
     model=model.to(device)
