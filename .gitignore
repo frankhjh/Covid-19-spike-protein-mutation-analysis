@@ -2,4 +2,5 @@
 *.fasta
 *.h5
 *.ckpt
+*.json
 __pycache__
