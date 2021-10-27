@@ -73,7 +73,7 @@ def create_mapping_dict(df):
     
 # encoding the seq within speific group
 def letter2idx(df,mapping_dict):
-    df['idx_sequence']=df.sequence.apply(lambda x:[x[i] for i in range(len(x))]).\
+    df['idx_sequence']=df.sequence.apply(lambda x:[x[i] for i in range(len(x))][:1273]).\
         apply(lambda x:[mapping_dict.get(i) for i in x])
     return df
 

@@ -34,38 +34,84 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
         out_dict[f'2021_{month}']=[res[idx] for idx in randn_idx]
     
     # plot the data in out_dict
-    # in two figs one inlcudes '2020-03' to '2020-10', the other includes '2020-11' to '2021-6'
-    fig,axs=plt.subplots(nrows=1,ncols=2,facecolor='w', figsize=(17,5))
-    colors=['black','brown','blue','purple','green','yellow','red','orange']
+    # in two figs one inlcudes '2020-03' to '2020-06', '2020-07' to '2020-10','2020-11' to '2021-02', '2021-03' to '2021-06'
+    fig,axs=plt.subplots(nrows=2,ncols=2,facecolor='w', figsize=(17,10))
+    #['black','brown','blue','purple'],
+    #['green','yellow','red','orange']
+    colors=['black','purple','blue','red']
     
-    ax=axs[0]
-    ax.set_title('latent space variation from 2020-03 to 2020-10')
-    ax.set_xlabel('dim1')
-    ax.set_ylabel('dim2')
+    ax0=plt.subplot(221)
+    ax0.set_title('latent space variation from 2020-03 to 2020-06')
+    ax0.set_xlabel('dim1')
+    ax0.set_ylabel('dim2')
 
-    for idx,month in enumerate(range(3,11)):
+    hs=[]
+    labels=[]
+    for idx,month in enumerate(range(3,7)):
         x1=[x[0] for x in out_dict[f'2020_{month}']]
         x2=[x[1] for x in out_dict[f'2020_{month}']]
-        ax.scatter(x1,x2,color=colors[idx],label=f'2020_{month}')
-    ax=plt.gca()
-    ax.legend()
+        h=ax0.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
 
-    ax=axs[1]
-    ax.set_title('latent space variation from 2020-11 to 2021-06')
-    ax.set_xlabel('dim1')
-    ax.set_ylabel('dim2')
+        hs.append(h)
+        labels.append(f'2020_{month}')
+    ax0=plt.gca()
+    ax0.legend(hs,labels,loc='upper right')
 
+
+    ax1=plt.subplot(222)
+    ax1.set_title('latent space variation from 2020-07 to 2020-10')
+    ax1.set_xlabel('dim1')
+    ax1.set_ylabel('dim2')
+
+    hs=[]
+    labels=[]
+    for idx,month in enumerate(range(7,11)):
+        x1=[x[0] for x in out_dict[f'2020_{month}']]
+        x2=[x[1] for x in out_dict[f'2020_{month}']]
+        h=ax1.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+
+        hs.append(h)
+        labels.append(f'2020_{month}')
+    ax1=plt.gca()
+    ax1.legend(hs,labels,loc='upper right')
+    
+    ax2=plt.subplot(223)
+    ax2.set_title('latent space variation from 2020-11 to 2021-02')
+    ax2.set_xlabel('dim1')
+    ax2.set_ylabel('dim2')
+    hs=[]
+    labels=[]
     for idx,month in enumerate(range(11,13)):
         x1=[x[0] for x in out_dict[f'2020_{month}']]
         x2=[x[1] for x in out_dict[f'2020_{month}']]
-        ax.scatter(x1,x2,color=colors[idx],label=f'2020_{month}')
+        h=ax2.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        hs.append(h)
+        labels.append(f'2020_{month}')
     
-    for idx,month in enumerate(range(1,7)):
+    for idx,month in enumerate(range(1,3)):
         x1=[x[0] for x in out_dict[f'2021_{month}']]
         x2=[x[1] for x in out_dict[f'2021_{month}']]
-        ax.scatter(x1,x2,color=colors[idx+2],label=f'2021_{month}')
-    ax=plt.gca()
-    ax.legend()
+        h=ax2.scatter(x1,x2,color=colors[idx+2],marker='o',s=3.0)
+        hs.append(h)
+        labels.append(f'2021_{month}')
+    ax2=plt.gca()
+    ax2.legend(hs,labels,loc='upper right')
+
+    ax3=plt.subplot(224)
+    ax3.set_title('latent space variation from 2021-03 to 2021-06')
+    ax3.set_xlabel('dim1')
+    ax3.set_ylabel('dim2')
+    hs=[]
+    labels=[]
+    for idx,month in enumerate(range(3,7)):
+        x1=[x[0] for x in out_dict[f'2021_{month}']]
+        x2=[x[1] for x in out_dict[f'2021_{month}']]
+        h=ax3.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        hs.append(h)
+        labels.append(f'2021_{month}')
+    ax3=plt.gca()
+    ax3.legend(hs,labels,loc='upper right')
+
 
     plt.savefig(f'./tmp/plot_out/{from_model}_latent_plot.png')
 

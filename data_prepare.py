@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 from utils.dataset import protein_seq_dataset
-from utils.similarity import similarity_in_group
+from utils.site_entropy import site_entropy_in_group
 import torch
 import pandas as pd
 
@@ -74,7 +74,7 @@ def prepare_data_loader2(df,fix_size=5500,train=True,binary=True):
     if train:
         df_sample=df.sample(fix_size).reset_index(drop=True)
         train_df=df_sample.iloc[:5000,:].copy()
-        entropy_index=similarity_in_group(train_df,seq_len=1274) # calculate the similarity within group
+        entropy_index=site_entropy_in_group(train_df,seq_len=1273) # calculate the similarity within group
         val_df=df_sample.iloc[5000:,:].reset_index(drop=True)
         if binary:
             train_df['binary_rep_sequence']=train_df.idx_sequence.apply(idx2binary_rep)

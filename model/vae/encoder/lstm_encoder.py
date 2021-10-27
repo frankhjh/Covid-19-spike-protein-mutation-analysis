@@ -17,20 +17,27 @@ class Gaussian_LSTM_encoder1(nn.Module):
         self.lstm=nn.LSTM(input_size=embed_dim,
                           hidden_size=hid_size,
                           num_layers=1,
-                          batch_first=True)
+                          batch_first=True,
+                          bidirectional=True)
         
-        self.linear=nn.Linear(hid_size,2*dim_z,bias=False)
+        self.linear2mean=nn.Linear(2*hid_size,dim_z)
+        self.linear2logvar=nn.Linear(2*hid_size,dim_z)
         self.bn_layer1=BN_Layer(dim_z,tau,mu=True)
         self.bn_layer2=BN_Layer(dim_z,tau,mu=False)
     
     def forward(self,x):
         embeddings=self.embed_layer(x) # (batch_size,seq_len,embed_dim)
-        _,(last_hid,last_cell)=self.lstm(embeddings) # last_hid:(1,batch_size,hid_size)
+        _,(last_hid,last_cell)=self.lstm(embeddings) # last_hid:(2*1,batch_size,hid_size)
 
-        mean,logvar=self.linear(last_hid).chunk(2,-1) # mean/logvar:(1,batch_size,dim_z)
+        last_hid=last_hid.permute(1,0,2)
+        bid_last_hid=last_hid.reshape(last_hid.size(0),-1) # tmp:(batch_size,2*hid_size)
+        
+        
+        mean=self.linear2mean(bid_last_hid)
+        logvar=self.linear2logvar(bid_last_hid) # mean/logvar:(batch_size,dim_z)
 
-        mean=self.bn_layer1(mean.squeeze(0)) # (batch_size,dim_z)
-        var=torch.exp(self.bn_layer2(logvar.squeeze(0))) # (batch_size,dim_z)
+        mean=self.bn_layer1(mean) # (batch_size,dim_z)
+        var=torch.exp(self.bn_layer2(logvar)) # (batch_size,dim_z)
         return mean,var
 
 # multi z
