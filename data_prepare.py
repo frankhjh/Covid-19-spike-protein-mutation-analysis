@@ -2,6 +2,7 @@ from torch.utils.data import DataLoader
 from utils.dataset import protein_seq_dataset
 from utils.site_entropy import site_entropy_in_group
 import torch
+import json
 import pandas as pd
 
 
@@ -75,6 +76,16 @@ def prepare_data_loader2(df,fix_size=5500,train=True,binary=True):
         df_sample=df.sample(fix_size).reset_index(drop=True)
         train_df=df_sample.iloc[:5000,:].copy()
         entropy_index=site_entropy_in_group(train_df,seq_len=1273) # calculate the similarity within group
+        
+        with open('./utils/overall_site_entropy.json','r') as f:
+            overall_site_entropy=json.load(f)[0]
+        
+        if entropy_index>overall_site_entropy:
+            fair_size=int((overall_site_entropy/entropy_index)*5000)
+            if fair_size%32==1:
+                fair_size-=1
+            train_df=train_df.sample(fair_size).reset_index(drop=True)
+        
         val_df=df_sample.iloc[5000:,:].reset_index(drop=True)
         if binary:
             train_df['binary_rep_sequence']=train_df.idx_sequence.apply(idx2binary_rep)
@@ -114,10 +125,58 @@ def prepare_data_loader2(df,fix_size=5500,train=True,binary=True):
         test_dataloader=DataLoader(test_set,batch_size=32,shuffle=False)
         return test_dataloader
 
+def prepare_data_loader_region(df,region,fix_size,train=True,binary=True):
+    if train:
+        df_sample=df.sample(fix_size).reset_index(drop=True)
+        train_df=df_sample.iloc[:fix_size*10/11,:].copy()
+        entropy_index=site_entropy_in_group(train_df,seq_len=1273) # calculate the similarity within group
+        
+        with open(f'./utils/region/{region}_overall_site_entropy.json','r') as f:
+            region_overall_site_entropy=json.load(f)[0]
+        
+        if entropy_index>region_overall_site_entropy:
+            fair_size=int((region_overall_site_entropy/entropy_index)*train_df.shape[0])
+            if fair_size%32==1:
+                fair_size-=1
+            train_df=train_df.sample(fair_size).reset_index(drop=True)
+        
+        val_df=df_sample.iloc[fix_size*10/11:,:].reset_index(drop=True)
+        if binary:
+            train_df['binary_rep_sequence']=train_df.idx_sequence.apply(idx2binary_rep)
+            train_seq_li=train_df.binary_rep_sequence.tolist()
+            val_df['binary_rep_sequence']=val_df.idx_sequence.apply(idx2binary_rep)
+            val_seq_li=val_df.binary_rep_sequence.tolist()
 
- 
-# continent specified
-# def prepare_data_loader2(df,continent_name,train=True,binary=True):
-#     fix_sizes={'Asia':2200,'Europe':}
+            train_tensor=torch.Tensor(train_seq_li)
+            val_tensor=torch.Tensor(val_seq_li)
+        else:
+            train_seq_li=train_df.idx_sequence.tolist()
+            val_seq_li=val_df.idx_sequence.tolist()
+
+            train_tensor=torch.tensor(train_seq_li)
+            val_tensor=torch.tensor(val_seq_li)
+
+        train_set=protein_seq_dataset(train_tensor)
+        val_set=protein_seq_dataset(val_tensor)
+
+        train_dataloader=DataLoader(train_set,batch_size=32,shuffle=True)
+        val_dataloader=DataLoader(val_set,batch_size=32,shuffle=False)
+
+        return entropy_index,train_dataloader,val_dataloader
+    else:
+        size=df.shape[0]
+        final_size=32*(size//32)
+        df=df.sample(final_size).reset_index(drop=True)
+        if binary:
+            df['binary_rep_sequence']=df.idx_sequence.apply(idx2binary_rep)
+            test_seq_li=df.binary_rep_sequence.tolist()
+            test_tensor=torch.Tensor(test_seq_li)
+        else:
+            test_seq_li=df.idx_sequence.tolist()
+            test_tensor=torch.tensor(test_seq_li)
+        
+        test_set=protein_seq_dataset(test_tensor)
+        test_dataloader=DataLoader(test_set,batch_size=32,shuffle=False)
+        return test_dataloader
         
         

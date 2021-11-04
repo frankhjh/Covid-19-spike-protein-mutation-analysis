@@ -9,6 +9,8 @@ import torch.nn as nn
 from torch import optim
 from model.vae.encoder.lstm_encoder import Gaussian_LSTM_encoder1,Gaussian_LSTM_encoder2
 from model.vae.encoder.mlp_encoder import MLP_encoder
+from model.vae.encoder.cnn_encoder import multi_kernel_cnn,multi_kernel_cnn2
+from model.vae.decoder.cnn_decoder import CNN_decoder
 from model.vae.decoder.lstm_decoder import LSTM_decoder
 from model.vae.decoder.mlp_decoder import MLP_decoder
 from model.vae.VAE import *
@@ -54,7 +56,7 @@ next_month=letter2idx(df2,mapping_dict)
 print('>>Sequence Encoding Done.')
 
 # create data loaders
-if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP']:
+if model_type in ['LSTM-LSTM','LSTM-MLP','CNN-MLP','CNN-CNN']:
     entropy_index,train_dataloader,val_dataloader=prepare_data_loader2(current_month,fix_size=5500,train=True,binary=False)
     test_dataloader=prepare_data_loader2(next_month,fix_size=5500,train=False,binary=False)
 elif model_type in ['MLP-MLP']:
@@ -73,7 +75,6 @@ model=train_vae(model_type=model_type,
           year=year,
           month=month)
 
-# compute reconstruction error
 model.load_state_dict(torch.load(f'./tmp/{model_type}/bm_{year}_{month}.ckpt'))
 print('>>Model Loaded.')
 
@@ -88,7 +89,7 @@ if model_type in ['MLP-MLP','LSTM-MLP','CNN-MLP']:
 with open(f'./tmp/latent_z/{model_type}_{year}_{month}.json','w') as f:
     json.dump(z_s,f)
 
-
+# compute reconstruction error
 reconstruction_error=0.0
 for step,x in tqdm(enumerate(test_dataloader)):
     with torch.no_grad():

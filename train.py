@@ -3,8 +3,9 @@ import torch
 import torch.nn as nn
 from torch import optim
 from model.vae.encoder.lstm_encoder import Gaussian_LSTM_encoder1,Gaussian_LSTM_encoder2
-from model.vae.encoder.cnn_encoder import multi_kernel_cnn
+from model.vae.encoder.cnn_encoder import multi_kernel_cnn,multi_kernel_cnn2
 from model.vae.encoder.mlp_encoder import MLP_encoder
+from model.vae.decoder.cnn_decoder import CNN_decoder
 from model.vae.decoder.lstm_decoder import LSTM_decoder
 from model.vae.decoder.mlp_decoder import MLP_decoder,MLP_decoder2
 from model.vae.VAE import *
@@ -37,8 +38,9 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
         model=vae_gaussian_mix(encoder=encoder,decoder=decoder)
     
     if model_type=='CNN-MLP':
-        encoder=multi_kernel_cnn(embed_dim=paras.get('embed_dim'),
+        encoder=multi_kernel_cnn2(embed_dim=paras.get('embed_dim'),
                                  vocab_size=paras.get('vocab_size'),
+                                 seq_len=paras.get('seq_len'),
                                  feat_size=paras.get('feat_size'),
                                  kernel_sizes=paras.get('kernel_sizes'),
                                  dim_z=paras.get('dim_z'),
@@ -47,6 +49,21 @@ def train_vae(model_type,model_parameters,train_dataloader,val_dataloader,epochs
                             num_aa_types=paras.get('num_aa_types'),
                             seq_len=paras.get('seq_len'),
                             hidden_units=paras.get('hidden_units'))
+        model=vae_gaussian_mix(encoder=encoder,decoder=decoder)
+    
+    if model_type=='CNN-CNN':
+        encoder=multi_kernel_cnn2(embed_dim=paras.get('embed_dim'),
+                                  vocab_size=paras.get('vocab_size'),
+                                  seq_len=paras.get('seq_len'),
+                                  feat_size=paras.get('feat_size'),
+                                  kernel_sizes=paras.get('kernel_sizes'),
+                                  dim_z=paras.get('dim_z'),
+                                  tau=paras.get('tau'))
+        decoder=CNN_decoder(dim_z=paras.get('dim_z'),
+                            kernel_sizes=paras.get('kernel_sizes'),
+                            seq_len=paras.get('seq_len'),
+                            num_aa_types=paras.get('num_aa_types'))
+        
         model=vae_gaussian_mix(encoder=encoder,decoder=decoder)
         
     

@@ -135,7 +135,7 @@ class vae_gaussian_lstm(vae_gaussian_base):
     def compute_loss(self,x):
         means,var_s=self.encode(x)
         # KL divergence
-        kl_divergence=torch.mean(torch.sum(0.5*(-torch.log(var_s)+means**2+var_s-1),-1),-1) # (batch,)
+        kl_divergence=torch.sum(torch.mean(0.5*(-torch.log(var_s)+means**2+var_s-1),-1),-1) # (batch,)
         kl_divergence=torch.sum(kl_divergence)
 
         z=self.reparameterize(means,var_s) # z:(batch_size,dim_z,seq_len)

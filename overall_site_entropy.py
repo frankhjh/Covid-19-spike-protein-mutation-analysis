@@ -2,6 +2,7 @@ from utils.site_entropy import site_entropy_in_group
 from data_process import letter2idx
 from tqdm import tqdm
 import pandas as pd
+import json
 import os
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 

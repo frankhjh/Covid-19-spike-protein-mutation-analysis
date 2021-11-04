@@ -38,7 +38,7 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
     fig,axs=plt.subplots(nrows=2,ncols=2,facecolor='w', figsize=(17,10))
     #['black','brown','blue','purple'],
     #['green','yellow','red','orange']
-    colors=['black','purple','blue','red']
+    colors=['green','orange','blue','red']
     
     ax0=plt.subplot(221)
     ax0.set_title('latent space variation from 2020-03 to 2020-06')
@@ -50,7 +50,7 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
     for idx,month in enumerate(range(3,7)):
         x1=[x[0] for x in out_dict[f'2020_{month}']]
         x2=[x[1] for x in out_dict[f'2020_{month}']]
-        h=ax0.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        h=ax0.scatter(x1,x2,color=colors[idx],marker='o',s=4.0)
 
         hs.append(h)
         labels.append(f'2020_{month}')
@@ -68,7 +68,7 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
     for idx,month in enumerate(range(7,11)):
         x1=[x[0] for x in out_dict[f'2020_{month}']]
         x2=[x[1] for x in out_dict[f'2020_{month}']]
-        h=ax1.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        h=ax1.scatter(x1,x2,color=colors[idx],marker='o',s=4.0)
 
         hs.append(h)
         labels.append(f'2020_{month}')
@@ -84,14 +84,14 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
     for idx,month in enumerate(range(11,13)):
         x1=[x[0] for x in out_dict[f'2020_{month}']]
         x2=[x[1] for x in out_dict[f'2020_{month}']]
-        h=ax2.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        h=ax2.scatter(x1,x2,color=colors[idx],marker='o',s=4.0)
         hs.append(h)
         labels.append(f'2020_{month}')
     
     for idx,month in enumerate(range(1,3)):
         x1=[x[0] for x in out_dict[f'2021_{month}']]
         x2=[x[1] for x in out_dict[f'2021_{month}']]
-        h=ax2.scatter(x1,x2,color=colors[idx+2],marker='o',s=3.0)
+        h=ax2.scatter(x1,x2,color=colors[idx+2],marker='o',s=4.0)
         hs.append(h)
         labels.append(f'2021_{month}')
     ax2=plt.gca()
@@ -106,7 +106,7 @@ def latent_space_visualization(dim1,dim2,from_model,sample_size): # dim1, dim2 a
     for idx,month in enumerate(range(3,7)):
         x1=[x[0] for x in out_dict[f'2021_{month}']]
         x2=[x[1] for x in out_dict[f'2021_{month}']]
-        h=ax3.scatter(x1,x2,color=colors[idx],marker='o',s=3.0)
+        h=ax3.scatter(x1,x2,color=colors[idx],marker='o',s=4.0)
         hs.append(h)
         labels.append(f'2021_{month}')
     ax3=plt.gca()

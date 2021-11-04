@@ -55,6 +55,7 @@ class Gaussian_LSTM_encoder2(nn.Module):
                           hidden_size=hid_size,
                           num_layers=1,
                           batch_first=True)
+                          #bidirectional=True)
         self.linear2mean=nn.Linear(hid_size,dim_z,bias=False)
         self.linear2logvar=nn.Linear(hid_size,dim_z,bias=False)
         self.bn_layer1=BN_Layer(dim_z,tau,mu=True)

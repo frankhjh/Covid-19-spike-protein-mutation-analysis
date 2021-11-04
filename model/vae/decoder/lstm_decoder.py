@@ -18,7 +18,7 @@ class LSTM_decoder(nn.Module):
     def forward(self,z): # z: (batch_size,seq_len,dim_z)
         lstm_out,(_,_)=self.lstm(z) # lstm_out: (batch_size,seq_len,hid_size)
         out=self.linear(lstm_out) # out: (batch_size,seq_len,num_aa_types)
-        out=out.view(-1,num_aa_types)
+        out=out.view(-1,self.num_aa_types)
 
         return out
 
