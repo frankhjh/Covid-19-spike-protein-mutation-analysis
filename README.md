@@ -1,1 +1,3 @@
 # Covid-19-spike-protein-mutation-analysis
+
+### writing...
